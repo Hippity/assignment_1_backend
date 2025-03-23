@@ -6,9 +6,10 @@ namespace MovieBackend.Interaces
 {
     public interface IMyMoviesService
     {
-        Task<IEnumerable<Movie>> GetAllMoviesAsync();
-        Task<Movie> GetMovieByIdAsync(long id);
-        Task<Movie> AddMovieAsync(Movie movie);
-        Task<bool> DeleteMovieAsync(long id);
+        Task<IEnumerable<MoveListDetails>> GetAllMoviesAsync(string userId = "");
+        Task<MoveListDetails> GetMovieByIdAsync(int id, string userId = "");
+        Task<MoveListDetails> AddMovieAsync(MoveListDetails movie, string userId = "");
+        Task<bool> DeleteMovieAsync(int id, string userId = "");
+        Task<bool> IsInMyMoviesAsync(int id, string userId = "");
     }
 }

@@ -313,3 +313,4 @@
 /Users/zeinzebib/Documents/University/AUB IT/Assignment_1/MovieBackend/obj/Debug/net9.0/ref/MovieBackend.dll
 /Users/zeinzebib/Documents/University/AUB IT/Assignment_1/MovieBackend/bin/Debug/net9.0/Microsoft.AspNetCore.Authentication.Google.dll
 /Users/zeinzebib/Documents/University/AUB IT/Assignment_1/MovieBackend/obj/Debug/net9.0/MovieBackend.sourcelink.json
+/Users/zeinzebib/Documents/University/AUB IT/Assignment_1/MovieBackend/bin/Debug/net9.0/Microsoft.AspNetCore.Authentication.JwtBearer.dll

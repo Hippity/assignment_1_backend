@@ -9,5 +9,21 @@ public class MyMovieContext : DbContext
     {
     }
 
-    public DbSet<Movie> Movies { get; set; } = null!;
+    public DbSet<MoveListDetails> Movies { get; set; } = null!;
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        base.OnModelCreating(modelBuilder);
+        
+        modelBuilder.Entity<MoveListDetails>()
+            .HasKey(m => m.Id);
+            
+        modelBuilder.Entity<MoveListDetails>()
+            .Property<string>("UserId")
+            .IsRequired(false);
+            
+        modelBuilder.Entity<MoveListDetails>()
+            .Property<DateTime>("DateAdded")
+            .HasDefaultValueSql("CURRENT_TIMESTAMP");
+    }
 }

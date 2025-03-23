@@ -18,34 +18,51 @@ namespace MovieBackend.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Movie>>> GetMyMovies()
+        public async Task<ActionResult<IEnumerable<MoveListDetails>>> GetMyMovies()
         {
-            var movies = await _service.GetAllMoviesAsync();
+            string userId = "";
+            
+            var movies = await _service.GetAllMoviesAsync(userId);
             return Ok(movies);
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<Movie>> GetMovie(long id)
+        public async Task<ActionResult<MoveListDetails>> GetMovie(int id)
         {
-            var movie = await _service.GetMovieByIdAsync(id);
+            string userId = "";
+            
+            var movie = await _service.GetMovieByIdAsync(id, userId);
             if (movie == null)
             {
                 return NotFound();
             }
             return Ok(movie);
         }
+        
+        [HttpGet("check/{id}")]
+        public async Task<ActionResult<bool>> CheckMovie(int id)
+        {
+            string userId = "";
+            
+            var isInWatchlist = await _service.IsInMyMoviesAsync(id, userId);
+            return Ok(isInWatchlist);
+        }
 
         [HttpPost]
-        public async Task<ActionResult<Movie>> AddMovie(Movie movie)
+        public async Task<ActionResult<MoveListDetails>> AddMovie(MoveListDetails movie)
         {
-            var createdMovie = await _service.AddMovieAsync(movie);
-            return CreatedAtAction(nameof(GetMovie), new { id = createdMovie.Id }, createdMovie);
+            string userId = "";
+            
+            var addedMovie = await _service.AddMovieAsync(movie, userId);
+            return CreatedAtAction(nameof(GetMovie), new { id = addedMovie.Id }, addedMovie);
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteMovie(long id)
+        public async Task<IActionResult> DeleteMovie(int id)
         {
-            var success = await _service.DeleteMovieAsync(id);
+            string userId = "";
+            
+            var success = await _service.DeleteMovieAsync(id, userId);
             if (!success)
             {
                 return NotFound();
