@@ -1,6 +1,6 @@
-using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authentication.Google;
-using Microsoft.EntityFrameworkCore;
+using System.Text;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
 using MovieBackend.Configurations;
 using MovieBackend.Contexts;
 using MovieBackend.Interaces;
@@ -11,24 +11,46 @@ builder.Services.AddControllers();
 
 builder.Services.AddOpenApi();
 
-//AUTH
+
+// Add JWT configuration
+builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("Jwt"));
+
+// Configure authentication with JWT
 builder.Services.AddAuthentication(options =>
 {
-    options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
     options.DefaultChallengeScheme = GoogleDefaults.AuthenticationScheme;
+    options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
 })
-.AddCookie(options => 
+.AddJwtBearer(options =>
 {
-    options.Cookie.SameSite = SameSiteMode.Lax; // Important for cross-site redirects
+    options.SaveToken = true;
+    options.RequireHttpsMetadata = true;
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        ValidIssuer = builder.Configuration["Jwt:Issuer"],
+        ValidAudience = builder.Configuration["Jwt:Audience"],
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"])),
+        ClockSkew = TimeSpan.Zero
+    };
 })
 .AddGoogle(options =>
 {
     options.ClientId = builder.Configuration["Google:CLIENT_ID"];
     options.ClientSecret = builder.Configuration["Google:CLIENT_SECRET"];
-    options.CallbackPath = "/api/account/GoogleResponse";
+    options.CallbackPath = "/api/account/callback";
+    options.SaveTokens = true; // Important to save tokens for later use
+    
+    // Map additional claims from Google
+    options.Scope.Add("profile");
+    options.ClaimActions.MapJsonKey("picture", "picture", "url");
 });
-builder.Services.AddScoped<IAccountService, AccountService>();
 
+builder.Services.AddScoped<IAccountService, AccountService>();
 
 // MEMORY CACHE
 builder.Services.AddMemoryCache();
@@ -71,7 +93,12 @@ if (app.Environment.IsDevelopment())
 
 app.UseCors("AllowAnyOrigin");
 
-app.UseHttpsRedirection();
+app.UseAuthentication();
+
+if (!app.Environment.IsDevelopment())
+{
+    app.UseHttpsRedirection();
+}
 
 app.UseAuthorization();
 
